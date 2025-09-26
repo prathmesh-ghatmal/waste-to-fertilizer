@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const connectDB = async () => {
   try {
     await mongoose.connect(
-      process.env.MONGO_URI || "mongodb://localhost:27017/waste2fertilizer"
+      process.env.MONGO_URI || "mongodb://localhost:27017/waste2fertilizere"
     );
     console.log("✅ MongoDB Connected");
   } catch (err) {
