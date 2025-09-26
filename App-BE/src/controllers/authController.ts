@@ -24,6 +24,7 @@ export const register = async (req: Request, res: Response) => {
       role: role || UserRole.BUYER,
       address,
       city,
+      phone: req.body.phone || "",
       state,
       zipCode,
       createdAt: new Date(),
@@ -51,7 +52,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
+      { id: user._id, email: user.email, role: user.role ,donorName:user.name},
       JWT_SECRET,
       { expiresIn: "1h" }
     );

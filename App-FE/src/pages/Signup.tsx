@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { UserRole } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ const Signup = () => {
   const [error, setError] = useState('');
   const { signup, isLoading } = useAuth();
   const { toast } = useToast();
-
+  const navigate=useNavigate();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -61,20 +62,19 @@ const Signup = () => {
     }
 
     try {
-      const success = await signup(
-        formData.email, 
-        formData.password, 
-        formData.name, 
-        formData.role as UserRole,
-        {
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zipCode
-        }
-      );
+      const success = await signup({
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        role: formData.role as UserRole,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+      });
 
+      navigate("/login")
       if (success) {
         toast({
           title: "Welcome to Waste2Fertilizer!",
