@@ -17,7 +17,11 @@ export const createWasteListing = async (req: AuthRequest, res: Response) => {
     data.id = `waste-${Date.now()}`;
     data.createdAt = new Date();
     data.updatedAt = new Date();
-
+    data.unit="kg"
+    data.images = data.images || [];
+    data.latitude = data.latitude || 0;
+    data.longitude = data.longitude || 0;
+    data.estimatedValue = data.estimatedValue || 0;
     const newListing = new WasteListingModel(data);
     await newListing.save();
 

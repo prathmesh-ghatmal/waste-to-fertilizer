@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,12 +20,32 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getWasteListingsByDonor, WasteType, WasteStatus } from '@/lib/data';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { createWasteListing, getMyWasteListings } from '@/api/wasteApi';
+import { create } from 'domain';
 
 const DonorWasteListings = () => {
   const { user } = useAuth();
-  const userWaste = user ? getWasteListingsByDonor(user.id) : [];
+const [userWaste , setUserWaste] = React.useState(getWasteListingsByDonor(user?.id || ''));
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+      const fetchListings = async () => {
+        
+        try {
+          const data = await getMyWasteListings();
+          setUserWaste(data);
+        } catch (err: any) {
+          setError(err.message || "Something went wrong");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchListings();
+    }, []);
   const [showForm, setShowForm] = useState(false);
   const [availableDate, setAvailableDate] = useState<Date>();
   const [expiryDate, setExpiryDate] = useState<Date>();
@@ -39,20 +59,21 @@ const DonorWasteListings = () => {
     specialInstructions: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
+    const formPayload = {
+      ...formData,
+      quantity: Number(formData.quantity),
+      availableFrom: availableDate,
+      expiryDate: expiryDate
+    };
+    const res=await createWasteListing(formPayload)
+    setUserWaste([...userWaste,res]);
     console.log('Form submitted:', formData, availableDate, expiryDate);
     setShowForm(false);
     // Reset form
-    setFormData({
-      title: '',
-      description: '',
-      wasteType: '' as WasteType | '',
-      quantity: '',
-      location: '',
-      specialInstructions: ''
-    });
+    
   };
 
   const getStatusColor = (status: WasteStatus) => {

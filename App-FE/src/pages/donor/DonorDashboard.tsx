@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,11 +15,29 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getWasteListingsByDonor, mockWasteListings, WasteStatus } from '@/lib/data';
+import { getMyWasteListings } from '@/api/wasteApi';
 
 const DonorDashboard = () => {
   const { user } = useAuth();
-  const userWaste = user ? getWasteListingsByDonor(user.id) : [];
-  
+  const [userWaste , setUserWaste] = React.useState(getWasteListingsByDonor(user?.id || ''));
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+      const fetchListings = async () => {
+        
+        try {
+          const data = await getMyWasteListings();
+          setUserWaste(data);
+        } catch (err: any) {
+          setError(err.message || "Something went wrong");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchListings();
+    }, []);
   const stats = [
     {
       title: "Active Listings",
@@ -61,7 +79,8 @@ const DonorDashboard = () => {
         return 'bg-muted text-muted-foreground';
     }
   };
-
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navbar />
