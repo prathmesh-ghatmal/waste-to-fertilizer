@@ -38,6 +38,8 @@ const ManufacturerInventory = () => {
     return fertilizers.filter(fertilizer => fertilizer.quantity < 50).length;
   };
 
+  const handleProduct=()=>{}
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navbar />
@@ -49,7 +51,7 @@ const ManufacturerInventory = () => {
           </div>
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button className="bg-primary hover:bg-primary/90" onClick={handleProduct}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Product
               </Button>

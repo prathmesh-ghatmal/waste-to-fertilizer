@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,17 +16,36 @@ import {
   CheckCircle,
   AlertTriangle
 } from 'lucide-react';
-import { mockWasteListings, WasteType, WasteStatus } from '@/lib/data';
+import { mockWasteListings, WasteType, WasteStatus, WasteListing } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { getMyWasteListings, updateWasteListing } from '@/api/wasteApi';
 
 const ManufacturerCollection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedWasteType, setSelectedWasteType] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [wasteListing,setwasteListing]=useState<WasteListing[]>([]);
   const { toast } = useToast();
+ const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
+    useEffect(() => {
+      const fetchListings = async () => {
+        
+        try {
+          const data = await getMyWasteListings();
+          setwasteListing(data);
+        } catch (err: any) {
+          setError(err.message || "Something went wrong");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchListings();
+    }, []);
   // Filter waste listings
-  const filteredWaste = mockWasteListings.filter(waste => {
+  const filteredWaste = wasteListing.filter(waste => {
     const matchesSearch = waste.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          waste.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = selectedWasteType === 'all' || waste.wasteType === selectedWasteType;
@@ -35,7 +54,9 @@ const ManufacturerCollection = () => {
     return matchesSearch && matchesType && matchesLocation;
   });
 
-  const handleRequestCollection = (wasteId: string, title: string) => {
+  const handleRequestCollection = async (wasteId: string, title: string) => {
+    const res=await updateWasteListing(wasteId,{status:"requested"})
+    console.log(res)
     toast({
       title: "Collection Request Sent",
       description: `Your request to collect "${title}" has been sent to the donor.`,
@@ -90,7 +111,8 @@ const ManufacturerCollection = () => {
     { value: 'Salem', label: 'Salem Area' },
     { value: 'Eugene', label: 'Eugene Area' }
   ];
-
+ if (loading) return <p>Loading...</p>;
+ if (error) return <p>Error: {error}</p>;
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Navbar />

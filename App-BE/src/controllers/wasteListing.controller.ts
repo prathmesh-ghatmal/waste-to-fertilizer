@@ -21,7 +21,8 @@ export const createWasteListing = async (req: AuthRequest, res: Response) => {
     data.images = data.images || [];
     data.latitude = data.latitude || 0;
     data.longitude = data.longitude || 0;
-    data.estimatedValue = data.estimatedValue || 0;
+    data.estimatedValue = data.estimatedValue || data.quantity * 0.5; // default estimation
+    
     const newListing = new WasteListingModel(data);
     await newListing.save();
 

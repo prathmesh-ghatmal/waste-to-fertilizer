@@ -18,3 +18,8 @@ export const createWasteListing = async (data: any) => {
     throw error.response?.data || { message: "Failed to create listing" };
   }
 };
+
+export const updateWasteListing = async (id: string, data: any) => {
+  const response = await axiosInstance.put(`/waste/${id}`, data);
+  return response.data;
+};
